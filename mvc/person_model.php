@@ -26,7 +26,13 @@ class Model_Person extends Model
 		if ( ! $this->validate($this->data))
 			throw new Exception('The data is invalid for this Person.');
 
-		$sql = 'INSERT INTO people (first_name, last_name, age, gender) VALUES ('.$this->data['first_name'].', '.$this->data['last_name'].', '.$this->data['age'].', '.$this->data['gender'].')';
+		$sql = sprintf(
+			'INSERT INTO people (first_name, last_name, age, gender) VALUES ("%s", "%s", "%s", "%s")',
+			$this->data['first_name'],
+			$this->data['last_name'],
+			$this->data['age'],
+			$this->data['gender'],
+		);
 
 		$success = mysql_query($sql, $this->db);
 
@@ -36,9 +42,9 @@ class Model_Person extends Model
 
 	protected function validate( & $data)
 	{
-		foreach ($data as $key => $value)
+		foreach ($data as $key => & $value)
 		{
-			$data[$key] = trim($value);
+			$value = trim($value);
 		}
 
 		if ( ! isset($data['first_name']) || empty($data['first_name']) || strlen($data['first_name'] > 32))
@@ -53,8 +59,10 @@ class Model_Person extends Model
 		if ( ! isset($data['gender']) || empty($data['gender']) || !in_array($data['gender'], array('M', 'F')))
 			return FALSE;
 
-		$data['first_name'] = mysql_real_escape_string($data['first_name']);
-		$data['last_name'] = mysql_real_escape_string($data['last_name']);
+		foreach ($data as $key => & $value)
+		{
+			$value = mysql_real_escape_string($value);
+		}
 
 		return TRUE;
 	}

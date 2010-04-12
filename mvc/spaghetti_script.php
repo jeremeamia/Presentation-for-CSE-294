@@ -14,8 +14,8 @@ echo '<html><head><title>Create Person Record</title></head>';
 
 function validate(&$data)
 {	
-	foreach ($data as $key => $value)
-		$data[$key] = trim($value);
+	foreach ($data as $key => &$value)
+		$value = trim($value);
 
 	if (!isset($data['first_name']) || empty($data['first_name']) || strlen($data['first_name'] > 32))
 		return FALSE;
@@ -26,8 +26,8 @@ function validate(&$data)
 	if (!isset($data['gender']) || empty($data['gender']) || !in_array($data['gender'], array('M', 'F')))
 		return FALSE;
 
-	$data['first_name'] = mysql_real_escape_string($data['first_name']);
-	$data['last_name'] = mysql_real_escape_string($data['last_name']);
+	foreach ($data as $key => $value)
+		$value = mysql_real_escape_string($value);
 
 	return TRUE;
 }
@@ -37,7 +37,7 @@ echo '<body><h1>Create Person Record</h1>';
 if ($_POST)
 {
 	$valid = validate($_POST);
-	$sql = "INSERT INTO people (first_name, last_name, age, gender) VALUES ($_POST[first_name], $_POST[last_name], $_POST[age], $_POST[gender]);"
+	$sql = "INSERT INTO people (first_name, last_name, age, gender) VALUES ('$_POST[first_name]', '$_POST[last_name]', '$_POST[age]', '$_POST[gender]');"
 	if ($valid)
 	{
 		$success = mysql_query($sql, $db);
